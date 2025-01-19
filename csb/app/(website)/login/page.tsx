@@ -6,7 +6,7 @@ import { LoginForm } from "@/_components/Login";
 export default function Page() {
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      <div className="absolute inset-0 w-full h-full">
+      <div className="absolute inset-0 w-full h-full bg-black">
         <iframe
           className="w-full h-full scale-150"
           src={`https://www.youtube.com/embed/LjiHEZVquak?autoplay=1&mute=1&loop=1&controls=0&modestbranding=1&showinfo=0&rel=0&playlist=LjiHEZVquak`}
@@ -23,7 +23,7 @@ export default function Page() {
           <NavBar />
           <div className="signincontainer grid grid-cols-2 grid-rows-1 gap-[5px] border-solid h-screen">
             <div className="left-side h-full flex justify-center items-center pb-60">
-              <LoginForm className="text-white" />
+              <LoginForm />
             </div>
             <div className="right-side h-full flex justify-center items-center pb-60">
               <div>

@@ -1,10 +1,11 @@
+// auth.config.ts
 import type { NextAuthConfig } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
-export const authConfig = {
+export const authConfig: NextAuthConfig = {
   providers: [
-    Credentials({
+    CredentialsProvider({
       credentials: {
         email: { type: "email", label: "Email" },
         password: { type: "password", label: "Password" },
@@ -14,36 +15,115 @@ export const authConfig = {
           return null;
         }
 
-        // Mock user for testing - later replace with DB lookup
-        const user = {
-          id: "1",
-          email: credentials.email,
-          name: "Test User",
-        };
+        try {
+          const response = await fetch("http://localhost:5001/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+            }),
+          });
 
-        return user;
+          if (!response.ok) {
+            return null;
+          }
+
+          const data = await response.json();
+
+          // Store token (in production, consider using cookies instead)
+          if (typeof window !== "undefined") {
+            localStorage.setItem("token", data.access_token);
+          }
+
+          // Get user profile using the token
+          const profileResponse = await fetch(
+            "http://localhost:5001/auth/profile",
+            {
+              headers: {
+                Authorization: `Bearer ${data.access_token}`,
+              },
+            }
+          );
+
+          if (!profileResponse.ok) {
+            return null;
+          }
+
+          const userProfile = await profileResponse.json();
+
+          return {
+            id: userProfile.userId,
+            email: credentials.email,
+            name: userProfile.userName || credentials.email,
+          };
+        } catch (error) {
+          console.error("Auth error:", error);
+          return null;
+        }
       },
     }),
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  pages: {
-    signIn: "/login",
-  },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
+    async signIn({ account }) {
+      console.log(account.id_token);
+      try {
+        const response = await fetch(
+          "http://localhost:5001/auth/google/verify",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              idToken: account?.id_token,
+            }),
+          }
+        );
+        if (!response.ok) return false;
+
+        const responseData = await response.json();
+        console.log(responseData);
+
+        account.customToken = responseData.access_token;
+        account.userId = responseData.userId;
+
+        return true;
+      } catch (error) {
+        console.error("Error during sign-in:", error);
+        return false;
+      }
+    },
+
+    async jwt({ token, account }) {
+      console.log("account.customToken");
+      console.log(account?.customToken);
+      if (account?.customToken) {
+        token.customToken = account.customToken;
+        token.userId = account.userId;
       }
       return token;
     },
+
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
+      if (session) {
+        session.customToken = token.customToken;
+        session.userId = token.userId;
       }
       return session;
     },
   },
-} satisfies NextAuthConfig;
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  pages: {
+    signIn: "/login",
+  },
+};

@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import React from "react";
-import { loginWithGoogle } from "@/actions/auth";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
+import { useTheme } from "@/app/providers/ThemeProvider";
 
 const formSchema = z
   .object({
@@ -28,6 +30,11 @@ const formSchema = z
 type FormData = z.infer<typeof formSchema>;
 
 export const RegisterForm = () => {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const { theme } = useTheme();
+  const { data: session } = useSession();
+
   const {
     register,
     handleSubmit,
@@ -39,37 +46,90 @@ export const RegisterForm = () => {
 
   const onSubmit = async (data: FormData) => {
     try {
-      // Call your NestJS backend instead of NextAuth
-      const response = await fetch("http://localhost:3000/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+      // Register with NestJS backend
+      const backendResponse = await fetch(
+        "http://localhost:5001/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!backendResponse.ok) {
+        const errorData = await backendResponse.json();
+        setError(errorData.message || "Registration failed");
+        return;
+      }
+
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+        callbackUrl: "/profile",
       });
-      // Handle response
+
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        if (result?.ok && session?.customToken) {
+          localStorage.setItem("token", session.customToken);
+          localStorage.setItem("userId", session.userId);
+          router.push("/profile");
+        }
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Registration error:", error);
+      setError("An unexpected error occurred");
     }
   };
 
   const handleGoogleRegister = async () => {
     try {
-      await loginWithGoogle();
+      const result = await signIn("google", {
+        redirect: false,
+        callbackUrl: "/profile",
+      });
+
+      // Check for session after Google sign-in
+      if (result?.ok && session?.customToken) {
+        localStorage.setItem("token", session.customToken);
+        localStorage.setItem("userId", session.userId);
+        router.push("/profile");
+      }
     } catch (error) {
       console.error("Google registration error:", error);
+      setError("Google registration failed");
     }
   };
 
+  useEffect(() => {
+    if (session?.customToken) {
+      localStorage.setItem("token", session.customToken);
+      localStorage.setItem("userId", session.userId);
+      router.push("/profile");
+    }
+  }, [session]);
+
   return (
-    <div className="space-y-6 w-3/4 text-white">
-      <h1 className="text-white text-3xl text-center mb-8">
+    <div className="space-y-6 w-3/4">
+      <h1
+        className={`text-3xl text-center mb-8 ${
+          theme === "dark" ? "text-white" : "text-gray-900"
+        }`}
+      >
         Your Ideas On Paper
       </h1>
       <form className="w-full space-y-4" onSubmit={handleSubmit(onSubmit)}>
-        <div className="text-white mb-4">
+        <div className={theme === "dark" ? "text-white" : "text-gray-900"}>
           <Input
-            className="firstname mb-4 text-white"
+            className={`firstname mb-4 ${
+              theme === "dark"
+                ? "text-white bg-gray-800"
+                : "text-gray-900 bg-white"
+            } border-gray-300`}
             {...register("userName")}
             type="text"
             placeholder="Username"
@@ -83,7 +143,11 @@ export const RegisterForm = () => {
 
         <div>
           <Input
-            className="email mb-4 text-white"
+            className={`email mb-4 ${
+              theme === "dark"
+                ? "text-white bg-gray-800"
+                : "text-gray-900 bg-white"
+            } border-gray-300`}
             {...register("email")}
             type="email"
             placeholder="Email"
@@ -95,7 +159,11 @@ export const RegisterForm = () => {
 
         <div>
           <Input
-            className="password mb-4 text-white"
+            className={`password mb-4 ${
+              theme === "dark"
+                ? "text-white bg-gray-800"
+                : "text-gray-900 bg-white"
+            } border-gray-300`}
             {...register("password")}
             type="password"
             placeholder="Password"
@@ -106,9 +174,14 @@ export const RegisterForm = () => {
             </p>
           )}
         </div>
+
         <div>
           <Input
-            className="password mb-4 text-white"
+            className={`password mb-4 ${
+              theme === "dark"
+                ? "text-white bg-gray-800"
+                : "text-gray-900 bg-white"
+            } border-gray-300`}
             {...register("confirmPassword")}
             type="password"
             placeholder="Confirm Password"
@@ -123,7 +196,9 @@ export const RegisterForm = () => {
         <div className="flex justify-center gap-4">
           <Button
             type="submit"
-            className={buttonVariants({ variant: "secondary" })}
+            className={`${buttonVariants({ variant: "secondary" })} ${
+              theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-200"
+            }`}
             disabled={isSubmitting}
           >
             {isSubmitting ? "Registering..." : "Register"}
@@ -132,7 +207,9 @@ export const RegisterForm = () => {
           <Button
             type="button"
             onClick={handleGoogleRegister}
-            className={buttonVariants({ variant: "secondary" })}
+            className={`${buttonVariants({ variant: "secondary" })} ${
+              theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-200"
+            }`}
           >
             Register with Google
           </Button>

@@ -1,33 +1,60 @@
-import { auth } from "@/auth";
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/button";
-import Link from "next/link"; // Changed this import
-import React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { Sun, Moon } from "lucide-react";
+import { useTheme } from "@/app/providers/ThemeProvider";
 
-export default async function NavBar() {
-  let data = await auth();
-  console.log(data);
+export default function NavBar() {
+  const { theme, toggleTheme } = useTheme();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    // Check both NextAuth session and localStorage token
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token || !!session);
+  }, [session]); // Add session as dependency
+
+  const handleSignOut = async () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    await signOut({ redirect: true, callbackUrl: "/login" }); // Use NextAuth signOut
+  };
 
   return (
-    <div className="bg-black w-full h-12">
+    <div
+      className={`w-full h-12 ${
+        theme === "light" ? "bg-white text-black" : "bg-black text-white"
+      }`}
+    >
       <div className="flex justify-between p-6">
-        <Button className={buttonVariants({ variant: "secondary" })}>
-          CSB Menu
-        </Button>
-
-        <Button className={buttonVariants({ variant: "secondary" })}>
+        <Button variant="secondary" onClick={() => router.push("/about")}>
           About CSB
         </Button>
+
         <div className="flex gap-6">
-          <Button className={buttonVariants({ variant: "secondary" })}>
-            Upgrade
+          <Button variant="secondary" onClick={() => router.push("/profile")}>
+            Profile
           </Button>
-          {data ? (
-            <Link href="/profile">
-              <Button className={buttonVariants({ variant: "destructive" })}>
-                Dashboard
+          <Button variant="secondary" onClick={() => router.push("/newsfeed")}>
+            Newsfeed
+          </Button>
+
+          {isAuthenticated || status === "authenticated" ? ( // Check both
+            <div className="flex gap-3">
+              <Link href="/create">
+                <Button variant="destructive">Create</Button>
+              </Link>
+              <Button variant="secondary" onClick={handleSignOut}>
+                Sign Out
               </Button>
-            </Link>
+            </div>
           ) : (
             <Link
               href="/login"
@@ -36,6 +63,9 @@ export default async function NavBar() {
               Login
             </Link>
           )}
+          <Button variant="secondary" onClick={toggleTheme}>
+            {theme === "dark" ? <Sun /> : <Moon />}
+          </Button>
         </div>
       </div>
     </div>

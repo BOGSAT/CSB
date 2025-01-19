@@ -16,11 +16,13 @@ export function CarouselComp() {
   return (
     <Carousel
       className="w-full max-w-xs"
-      plugins={[
-        Autoplay({
-          delay: 7000,
-        }),
-      ]}
+      plugins={
+        [
+          // Autoplay({
+          //   delay: 7000,
+          // }),
+        ]
+      }
     >
       <CarouselContent>
         {Array.from({ length: 5 }).map((_, index) => (

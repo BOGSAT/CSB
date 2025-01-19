@@ -19,7 +19,7 @@ export default function Page() {
       </div>
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-black/50 " />
 
       <div className="relative z-10 h-full">
         <div className="w-full h-screen">
