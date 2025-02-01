@@ -46,3 +46,10 @@ next-env.d.ts
 
 # environment
 .env.local
+
+.cache/
+
+# Local development
+/dist
+/tmp
+/temp
