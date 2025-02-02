@@ -82,7 +82,7 @@ export const RegisterForm = () => {
       } else {
         if (result?.ok && session?.customToken) {
           localStorage.setItem("token", session.customToken);
-          localStorage.setItem("userId", session.userId);
+          localStorage.setItem("userId", session.userId || "");
           router.push("/profile");
         }
       }
@@ -102,7 +102,7 @@ export const RegisterForm = () => {
       // Check for session after Google sign-in
       if (result?.ok && session?.customToken) {
         localStorage.setItem("token", session.customToken);
-        localStorage.setItem("userId", session.userId);
+        localStorage.setItem("userId", session.userId || "");
         router.push("/profile");
       }
     } catch (error) {
@@ -114,7 +114,7 @@ export const RegisterForm = () => {
   useEffect(() => {
     if (session?.customToken) {
       localStorage.setItem("token", session.customToken);
-      localStorage.setItem("userId", session.userId);
+      localStorage.setItem("userId", session.userId || "");
       router.push("/profile");
     }
   }, [session]);
