@@ -72,6 +72,7 @@ export const authConfig: NextAuthConfig = {
   ],
   callbacks: {
     async signIn({ account }) {
+      if (!account || !account.id_token) return false;
       console.log(account.id_token);
       try {
         const response = await fetch(
