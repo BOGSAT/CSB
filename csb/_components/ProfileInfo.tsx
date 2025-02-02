@@ -54,7 +54,7 @@ export default function Profile() {
   const [draftStories, setDraftStories] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [stories, setStories] = useState([]);
+  const [stories, setStories] = useState<Story[]>([]);
   const [openStory, setOpenStory] = useState<Story | null>(null);
 
   // Profile state

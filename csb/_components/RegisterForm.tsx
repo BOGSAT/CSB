@@ -9,6 +9,11 @@ import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { useTheme } from "@/app/providers/ThemeProvider";
 
+interface CustomSession extends Session {
+  customToken?: string;
+  userId?: string;
+}
+
 const formSchema = z
   .object({
     userName: z.string().min(2, "Name must be at least 2 characters"),
