@@ -113,7 +113,7 @@ export default function Profile() {
         ]);
         setPublishedStories(publishedRes.data);
         setDraftStories(draftsRes.data);
-      } catch (error) {
+      } catch (error: any) {
         if (error.response?.status === 401) {
           console.log("Auth error - token might be invalid");
         }
