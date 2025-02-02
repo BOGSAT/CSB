@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { useTheme } from "@/app/providers/ThemeProvider";
+import { Session } from "next-auth";
 
 interface CustomSession extends Session {
   customToken?: string;
@@ -38,7 +39,7 @@ export const RegisterForm = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const { theme } = useTheme();
-  const { data: session } = useSession();
+  const { data: session } = useSession() as { data: CustomSession | null };
 
   const {
     register,
