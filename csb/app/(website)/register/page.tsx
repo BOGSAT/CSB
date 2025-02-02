@@ -26,7 +26,7 @@ export default function Page() {
           <NavBar />
           <div className="signincontainer grid grid-cols-2 grid-rows-1 gap-[5px] border-solid h-screen">
             <div className="left-side h-full flex justify-center items-center pb-60">
-              <RegisterForm className="text-white" />
+              <RegisterForm />
             </div>
             <div className="right-side h-full flex justify-center items-center pb-60">
               <div>
