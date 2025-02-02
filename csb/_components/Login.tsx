@@ -8,6 +8,7 @@ import React, { useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/app/providers/ThemeProvider";
+import { Session } from "next-auth";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -16,10 +17,15 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+interface CustomSession extends Session {
+  customToken?: string;
+}
+
 export const LoginForm = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const { update } = useSession();
+  const { data: session } = useSession() as { data: CustomSession | null };
   const { theme } = useTheme();
   const {
     register,
