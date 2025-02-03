@@ -1,5 +1,6 @@
 // auth.config.ts
-import type { NextAuthConfig } from "next-auth";
+import type { Account, NextAuthConfig } from "next-auth";
+import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
@@ -71,9 +72,8 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
-    async signIn({ account }) {
+    async signIn({ account }: { account: Account | null }) {
       if (!account || !account.id_token) return false;
-      console.log(account.id_token);
       try {
         const response = await fetch(
           "http://localhost:5001/auth/google/verify",
@@ -83,7 +83,7 @@ export const authConfig: NextAuthConfig = {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              idToken: account?.id_token,
+              idToken: account.id_token,
             }),
           }
         );
@@ -92,9 +92,8 @@ export const authConfig: NextAuthConfig = {
         const responseData = await response.json();
         console.log(responseData);
 
-        account.customToken = responseData.access_token;
-        account.userId = responseData.userId;
-
+        // Return true instead of the modified account
+        // Store the data in the JWT callback instead
         return true;
       } catch (error) {
         console.error("Error during sign-in:", error);
@@ -112,10 +111,10 @@ export const authConfig: NextAuthConfig = {
       return token;
     },
 
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: JWT }) {
       if (session) {
-        session.customToken = token.customToken;
-        session.userId = token.userId;
+        (session as any).customToken = token.customToken;
+        (session as any).userId = token.userId;
       }
       return session;
     },
