@@ -4,6 +4,8 @@ import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+
 export const authConfig: NextAuthConfig = {
   providers: [
     CredentialsProvider({
@@ -17,7 +19,7 @@ export const authConfig: NextAuthConfig = {
         }
 
         try {
-          const response = await fetch("http://localhost:5001/auth/login", {
+          const response = await fetch(`${API_URL}/auth/login`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -40,14 +42,11 @@ export const authConfig: NextAuthConfig = {
           }
 
           // Get user profile using the token
-          const profileResponse = await fetch(
-            "http://localhost:5001/auth/profile",
-            {
-              headers: {
-                Authorization: `Bearer ${data.access_token}`,
-              },
-            }
-          );
+          const profileResponse = await fetch(`${API_URL}/auth/profile`, {
+            headers: {
+              Authorization: `Bearer ${data.access_token}`,
+            },
+          });
 
           if (!profileResponse.ok) {
             return null;
@@ -75,18 +74,15 @@ export const authConfig: NextAuthConfig = {
     async signIn({ account }: { account: Account | null }) {
       if (!account || !account.id_token) return false;
       try {
-        const response = await fetch(
-          "http://localhost:5001/auth/google/verify",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              idToken: account.id_token,
-            }),
-          }
-        );
+        const response = await fetch(`${API_URL}/auth/google/verify`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idToken: account.id_token,
+          }),
+        });
         if (!response.ok) return false;
 
         const responseData = await response.json();
