@@ -4,7 +4,7 @@ import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const authConfig: NextAuthConfig = {
   providers: [
