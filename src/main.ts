@@ -25,7 +25,7 @@ async function bootstrap() {
 
   // CORS configuration
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: 'http://csb.jeroenvanrijsselt.com',
     credentials: true,
   });
 
@@ -34,6 +34,6 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter(httpAdapterHost));
   app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(5001);
+  await app.listen(3001);
 }
 bootstrap();
