@@ -9,20 +9,6 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable Helmet
-  app.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-          styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", 'data:', 'https:'],
-        },
-      },
-    }),
-  );
-
   // CORS configuration
   app.enableCors({
     origin: true, // temporarily allow all origins for testing
@@ -38,6 +24,40 @@ async function bootstrap() {
     exposedHeaders: ['Set-Cookie'],
     maxAge: 86400, // 24 hours in seconds
   });
+
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'", 'http://csb.jeroenvanrijsselt.com'],
+          scriptSrc: [
+            "'self'",
+            "'unsafe-inline'",
+            "'unsafe-eval'",
+            'http://csb.jeroenvanrijsselt.com',
+          ],
+          styleSrc: [
+            "'self'",
+            "'unsafe-inline'",
+            'http://csb.jeroenvanrijsselt.com',
+          ],
+          imgSrc: [
+            "'self'",
+            'data:',
+            'https:',
+            'http://csb.jeroenvanrijsselt.com',
+          ],
+          connectSrc: [
+            "'self'",
+            'http://csb.jeroenvanrijsselt.com',
+            'http://api.csb.jeroenvanrijsselt.com',
+          ],
+        },
+      },
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+    }),
+  );
 
   const httpAdapterHost = app.get(HttpAdapterHost);
 
