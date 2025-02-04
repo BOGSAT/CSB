@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "@/app/providers/ThemeProvider";
 import { Session } from "next-auth";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const formSchema = z.object({
   email: z.string().email("Invalid email format"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -40,7 +42,7 @@ export const LoginForm = () => {
     try {
       console.log("Attempting login with:", data);
 
-      const backendResponse = await fetch("http://localhost:5001/auth/login", {
+      const backendResponse = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -41,6 +41,8 @@ export const RegisterForm = () => {
   const { theme } = useTheme();
   const { data: session } = useSession() as { data: CustomSession | null };
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   const {
     register,
     handleSubmit,
@@ -53,16 +55,13 @@ export const RegisterForm = () => {
   const onSubmit = async (data: FormData) => {
     try {
       // Register with NestJS backend
-      const backendResponse = await fetch(
-        "http://localhost:5001/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      const backendResponse = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
       if (!backendResponse.ok) {
         const errorData = await backendResponse.json();
