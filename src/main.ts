@@ -25,10 +25,18 @@ async function bootstrap() {
 
   // CORS configuration
   app.enableCors({
-    origin: ['http://csb.jeroenvanrijsselt.com', 'http://localhost:3000'],
+    origin: true, // temporarily allow all origins for testing
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'Origin',
+      'X-Requested-With',
+    ],
+    exposedHeaders: ['Set-Cookie'],
+    maxAge: 86400, // 24 hours in seconds
   });
 
   const httpAdapterHost = app.get(HttpAdapterHost);
