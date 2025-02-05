@@ -6,18 +6,21 @@ import { LoginForm } from "@/_components/Login";
 export default function Page() {
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      <div className="absolute inset-0 w-full h-full bg-black">
+      <div className="absolute inset-0 w-full h-full">
         <iframe
           className="w-full h-full scale-150"
-          src={`https://www.youtube.com/embed/LjiHEZVquak?autoplay=1&mute=1&loop=1&controls=0&modestbranding=1&showinfo=0&rel=0&playlist=LjiHEZVquak`}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          src="https://player.vimeo.com/video/1053761735?autoplay=1&loop=1&background=1&muted=1"
+          allow="autoplay; fullscreen"
           allowFullScreen
           style={{
             pointerEvents: "none",
           }}
         />
       </div>
+
+      {/* Overlay */}
       <div className="absolute inset-0 bg-black/50" />
+
       <div className="relative z-10 h-full">
         <div className="w-full h-screen">
           <NavBar />

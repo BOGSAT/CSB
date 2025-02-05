@@ -63,9 +63,6 @@ export default function NavBar() {
               Login
             </Link>
           )}
-          <Button variant="secondary" onClick={toggleTheme}>
-            {theme === "dark" ? <Sun /> : <Moon />}
-          </Button>
         </div>
       </div>
     </div>
